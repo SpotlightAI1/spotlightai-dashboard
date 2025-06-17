@@ -1,12 +1,42 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState } from 'react';
+import { DashboardHeader } from '@/components/DashboardHeader';
+import { MetricsOverview } from '@/components/MetricsOverview';
+import { ServiceLineBreakdown } from '@/components/ServiceLineBreakdown';
+import { MarketIntelligence } from '@/components/MarketIntelligence';
+import { PhysicianDrilldown } from '@/components/PhysicianDrilldown';
+import { ChatAgent } from '@/components/ChatAgent';
 
 const Index = () => {
+  const [selectedServiceLine, setSelectedServiceLine] = useState<string | null>(null);
+  const [selectedPhysician, setSelectedPhysician] = useState<string | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <DashboardHeader />
+      
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        <MetricsOverview />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ServiceLineBreakdown 
+            onServiceLineSelect={setSelectedServiceLine}
+            selectedServiceLine={selectedServiceLine}
+          />
+          <MarketIntelligence />
+        </div>
+
+        {selectedServiceLine && (
+          <PhysicianDrilldown 
+            serviceLine={selectedServiceLine}
+            onPhysicianSelect={setSelectedPhysician}
+            selectedPhysician={selectedPhysician}
+          />
+        )}
+      </main>
+
+      <ChatAgent isOpen={isChatOpen} onToggle={() => setIsChatOpen(!isChatOpen)} />
     </div>
   );
 };
