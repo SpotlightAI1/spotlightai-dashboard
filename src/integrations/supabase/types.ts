@@ -192,6 +192,80 @@ export type Database = {
         }
         Relationships: []
       }
+      service_line_benchmarks: {
+        Row: {
+          average_revenue_percentage: number | null
+          created_at: string
+          id: string
+          market_position: string | null
+          organization_type: string
+          region: string | null
+          service_line: string
+          updated_at: string
+        }
+        Insert: {
+          average_revenue_percentage?: number | null
+          created_at?: string
+          id?: string
+          market_position?: string | null
+          organization_type: string
+          region?: string | null
+          service_line: string
+          updated_at?: string
+        }
+        Update: {
+          average_revenue_percentage?: number | null
+          created_at?: string
+          id?: string
+          market_position?: string | null
+          organization_type?: string
+          region?: string | null
+          service_line?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      strategic_insights: {
+        Row: {
+          confidence_score: number | null
+          content: string
+          created_at: string
+          generated_at: string
+          id: string
+          insight_type: string
+          organization_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          content: string
+          created_at?: string
+          generated_at?: string
+          id?: string
+          insight_type: string
+          organization_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          confidence_score?: number | null
+          content?: string
+          created_at?: string
+          generated_at?: string
+          id?: string
+          insight_type?: string
+          organization_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategic_insights_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "healthcare_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       "Texas State IP 2018": {
         Row: {
           ADMIT_WEEKDAY: number | null
