@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      healthcare_organizations: {
+        Row: {
+          beds: number | null
+          created_at: string
+          current_challenges: string[] | null
+          id: string
+          market: string | null
+          name: string
+          revenue: number | null
+          strategic_priorities: string[] | null
+          type: Database["public"]["Enums"]["organization_type"]
+          updated_at: string
+        }
+        Insert: {
+          beds?: number | null
+          created_at?: string
+          current_challenges?: string[] | null
+          id?: string
+          market?: string | null
+          name: string
+          revenue?: number | null
+          strategic_priorities?: string[] | null
+          type: Database["public"]["Enums"]["organization_type"]
+          updated_at?: string
+        }
+        Update: {
+          beds?: number | null
+          created_at?: string
+          current_challenges?: string[] | null
+          id?: string
+          market?: string | null
+          name?: string
+          revenue?: number | null
+          strategic_priorities?: string[] | null
+          type?: Database["public"]["Enums"]["organization_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       "IP Test": {
         Row: {
           adm_date: string | null
@@ -350,7 +389,11 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      organization_type:
+        | "Independent"
+        | "Regional"
+        | "Specialty"
+        | "Critical Access"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -465,6 +508,13 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      organization_type: [
+        "Independent",
+        "Regional",
+        "Specialty",
+        "Critical Access",
+      ],
+    },
   },
 } as const

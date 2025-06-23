@@ -8,6 +8,7 @@ import { HospitalSystemOverview } from '@/components/HospitalSystemOverview';
 import { MarketIntelligence } from '@/components/MarketIntelligence';
 import { PhysicianDrilldown } from '@/components/PhysicianDrilldown';
 import { ChatAgent } from '@/components/ChatAgent';
+import { HealthcareOrganizations } from '@/components/HealthcareOrganizations';
 
 const Index = () => {
   const [selectedServiceLine, setSelectedServiceLine] = useState<string | null>(null);
@@ -33,6 +34,8 @@ const Index = () => {
           <ServiceLinePortfolio />
           <HospitalSystemOverview />
         </div>
+
+        <HealthcareOrganizations />
 
         {selectedServiceLine && (
           <PhysicianDrilldown 
