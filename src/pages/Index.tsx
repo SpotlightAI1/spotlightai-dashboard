@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { DashboardHeader } from '@/components/DashboardHeader';
 import { MetricsOverview } from '@/components/MetricsOverview';
 import { ServiceLineBreakdown } from '@/components/ServiceLineBreakdown';
+import { ServiceLinePortfolio } from '@/components/ServiceLinePortfolio';
+import { HospitalSystemOverview } from '@/components/HospitalSystemOverview';
 import { MarketIntelligence } from '@/components/MarketIntelligence';
 import { PhysicianDrilldown } from '@/components/PhysicianDrilldown';
 import { ChatAgent } from '@/components/ChatAgent';
@@ -25,6 +27,11 @@ const Index = () => {
             selectedServiceLine={selectedServiceLine}
           />
           <MarketIntelligence />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ServiceLinePortfolio />
+          <HospitalSystemOverview />
         </div>
 
         {selectedServiceLine && (
