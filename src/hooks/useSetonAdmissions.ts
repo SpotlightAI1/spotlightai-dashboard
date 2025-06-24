@@ -18,11 +18,11 @@ export const useSetonAdmissions = () => {
       const setonThcicIds = [852000, 975215, 597000, 559000, 497000, 971000, 921000, 861700, 797600, 770000, 424500, 797500];
       console.log('Seton THCIC IDs to query:', setonThcicIds);
 
-      // Step 2: Get facility names for these THCIC_IDs
+      // Step 2: Get facility names for these THCIC_IDs (with quoted column names)
       const { data: setonFacilities, error: facilitiesError } = await supabase
         .from('facility_id_table_tx')
-        .select('THCIC_ID, PROVIDER_NAME')
-        .in('THCIC_ID', setonThcicIds);
+        .select('"THCIC_ID", "PROVIDER_NAME"')
+        .in('"THCIC_ID"', setonThcicIds);
 
       if (facilitiesError) {
         console.error('Error fetching Seton facilities:', facilitiesError);
@@ -37,11 +37,11 @@ export const useSetonAdmissions = () => {
         return [];
       }
 
-      // Step 3: Get admissions count by THCIC_ID from tx_state_IP_2018
+      // Step 3: Get admissions count by THCIC_ID from tx_state_IP_2018 (with quoted table and column names)
       const { data: admissionsData, error: admissionsError } = await supabase
-        .from('tx_state_IP_2018')
-        .select('THCIC_ID')
-        .in('THCIC_ID', setonThcicIds);
+        .from('"tx_state_IP_2018"')
+        .select('"THCIC_ID"')
+        .in('"THCIC_ID"', setonThcicIds);
 
       if (admissionsError) {
         console.error('Error fetching admissions:', admissionsError);
