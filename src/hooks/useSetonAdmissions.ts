@@ -12,32 +12,31 @@ export const useSetonAdmissions = () => {
   return useQuery({
     queryKey: ['seton-admissions'],
     queryFn: async (): Promise<SetonAdmissionData[]> => {
-      console.log('Fetching Seton admissions data...');
+      console.log('Fetching all Seton facilities dynamically...');
       
-      // Specific Seton facility THCIC_IDs
-      const setonThcicIds = [597000, 559000, 497000, 971000, 921000, 861700, 797600, 770000, 424500, 797500];
-
-      console.log('Looking for THCIC IDs:', setonThcicIds);
-
-      // First, get facility names for these THCIC_IDs
-      const { data: facilities, error: facilitiesError } = await supabase
+      // First, get ALL facilities with "Seton" in the name
+      const { data: setonFacilities, error: facilitiesError } = await supabase
         .from('Facility ID Table_TX')
         .select('THCIC_ID, PROVIDER_NAME')
-        .in('THCIC_ID', setonThcicIds);
+        .ilike('PROVIDER_NAME', '%Seton%');
 
       if (facilitiesError) {
         console.error('Error fetching Seton facilities:', facilitiesError);
         throw facilitiesError;
       }
 
-      console.log('Seton facilities found:', facilities);
+      console.log('All Seton facilities found:', setonFacilities);
 
-      if (!facilities || facilities.length === 0) {
-        console.log('No Seton facilities found for the specified THCIC IDs');
+      if (!setonFacilities || setonFacilities.length === 0) {
+        console.log('No Seton facilities found');
         return [];
       }
 
-      // Now get admissions data for these facilities
+      // Extract THCIC_IDs for the admissions query
+      const setonThcicIds = setonFacilities.map(facility => facility.THCIC_ID);
+      console.log('Seton THCIC IDs to query:', setonThcicIds);
+
+      // Get admissions data for these facilities
       const { data: admissions, error: admissionsError } = await supabase
         .from('Texas State IP 2018')
         .select('THCIC_ID')
@@ -48,8 +47,7 @@ export const useSetonAdmissions = () => {
         throw admissionsError;
       }
 
-      console.log('Admissions data records found:', admissions?.length || 0);
-      console.log('Sample admissions data:', admissions?.slice(0, 5));
+      console.log('Total admission records found:', admissions?.length || 0);
 
       // Group by facility and count admissions
       const admissionsByFacility = admissions?.reduce((acc: Record<number, SetonAdmissionData>, record: any) => {
@@ -57,7 +55,7 @@ export const useSetonAdmissions = () => {
         
         if (thcicId) {
           if (!acc[thcicId]) {
-            const facility = facilities.find(f => f.THCIC_ID === thcicId);
+            const facility = setonFacilities.find(f => f.THCIC_ID === thcicId);
             acc[thcicId] = {
               PROVIDER_NAME: facility?.PROVIDER_NAME || 'Unknown',
               total_admissions: 0,
@@ -70,11 +68,19 @@ export const useSetonAdmissions = () => {
         return acc;
       }, {}) || {};
 
-      const result = Object.values(admissionsByFacility);
-      console.log('Final processed Seton admissions data:', result);
-      console.log('Total facilities with admissions:', result.length);
+      // Convert to array and filter out facilities with zero admissions
+      const facilitiesWithAdmissions = Object.values(admissionsByFacility)
+        .filter(facility => facility.total_admissions > 0);
+
+      console.log('Seton facilities with admissions:', facilitiesWithAdmissions);
+      console.log('Facilities filtered (has admissions):', facilitiesWithAdmissions.length);
       
-      return result;
+      // Sort by admissions count descending
+      const sortedResults = facilitiesWithAdmissions.sort((a, b) => b.total_admissions - a.total_admissions);
+      
+      console.log('Final sorted results:', sortedResults);
+      
+      return sortedResults;
     },
   });
 };

@@ -8,6 +8,10 @@ import { Loader2 } from 'lucide-react';
 export const SetonAdmissionsChart = () => {
   const { data: setonData, isLoading, error } = useSetonAdmissions();
 
+  console.log('Chart component - setonData:', setonData);
+  console.log('Chart component - isLoading:', isLoading);
+  console.log('Chart component - error:', error);
+
   if (isLoading) {
     return (
       <Card>
@@ -23,6 +27,7 @@ export const SetonAdmissionsChart = () => {
   }
 
   if (error) {
+    console.error('Chart error:', error);
     return (
       <Card>
         <CardHeader>
@@ -36,13 +41,14 @@ export const SetonAdmissionsChart = () => {
   }
 
   if (!setonData || setonData.length === 0) {
+    console.log('No data to display in chart');
     return (
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-900">Seton Facilities - Total Admissions</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-64">
-          <div className="text-gray-600">No Seton facility data found</div>
+          <div className="text-gray-600">No Seton facility data with admissions found</div>
         </CardContent>
       </Card>
     );
@@ -56,12 +62,14 @@ export const SetonAdmissionsChart = () => {
     thcicId: item.THCIC_ID
   }));
 
+  console.log('Chart data formatted:', chartData);
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-lg font-semibold text-gray-900">Seton Facilities - Total Admissions (2018)</CardTitle>
         <p className="text-sm text-gray-600">
-          Total admissions by Seton healthcare facilities based on Texas State IP data
+          Total admissions by Seton healthcare facilities with recorded admissions
         </p>
       </CardHeader>
       <CardContent>
@@ -99,7 +107,7 @@ export const SetonAdmissionsChart = () => {
             <div className="text-2xl font-bold text-blue-600">
               {setonData.length}
             </div>
-            <div className="text-sm text-gray-600">Facilities</div>
+            <div className="text-sm text-gray-600">Facilities with Admissions</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600">
