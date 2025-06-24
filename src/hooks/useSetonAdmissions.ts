@@ -19,11 +19,11 @@ export const useSetonAdmissions = () => {
 
       console.log('Looking for THCIC IDs:', setonThcicIds);
 
-      // First, get facility names for these THCIC_IDs with proper quoting
+      // First, get facility names for these THCIC_IDs
       const { data: facilities, error: facilitiesError } = await supabase
-        .from('"Facility ID Table_TX"')
-        .select('"THCIC_ID", "PROVIDER_NAME"')
-        .in('"THCIC_ID"', setonThcicIds);
+        .from('Facility ID Table_TX')
+        .select('THCIC_ID, PROVIDER_NAME')
+        .in('THCIC_ID', setonThcicIds);
 
       if (facilitiesError) {
         console.error('Error fetching Seton facilities:', facilitiesError);
@@ -37,11 +37,11 @@ export const useSetonAdmissions = () => {
         return [];
       }
 
-      // Now get admissions data for these facilities with proper quoting
+      // Now get admissions data for these facilities
       const { data: admissions, error: admissionsError } = await supabase
-        .from('"Texas State IP 2018"')
-        .select('"THCIC_ID"')
-        .in('"THCIC_ID"', setonThcicIds);
+        .from('Texas State IP 2018')
+        .select('THCIC_ID')
+        .in('THCIC_ID', setonThcicIds);
 
       if (admissionsError) {
         console.error('Error fetching admissions:', admissionsError);
