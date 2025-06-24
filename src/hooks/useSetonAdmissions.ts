@@ -14,39 +14,54 @@ export const useSetonAdmissions = () => {
     queryFn: async (): Promise<SetonAdmissionData[]> => {
       console.log('Fetching Seton admissions data...');
       
-      // Query to get admissions data for Seton facilities
-      const { data, error } = await supabase
-        .from('Texas State IP 2018')
-        .select(`
-          THCIC_ID,
-          Facility ID Table_TX!inner(
-            PROVIDER_NAME
-          )
-        `)
-        .ilike('Facility ID Table_TX.PROVIDER_NAME', '%Seton%');
+      // First, get all Seton facilities from the Facility ID table
+      const { data: facilities, error: facilitiesError } = await supabase
+        .from('Facility ID Table_TX')
+        .select('THCIC_ID, PROVIDER_NAME')
+        .ilike('PROVIDER_NAME', '%Seton%');
 
-      if (error) {
-        console.error('Error fetching Seton admissions:', error);
-        throw error;
+      if (facilitiesError) {
+        console.error('Error fetching Seton facilities:', facilitiesError);
+        throw facilitiesError;
       }
 
-      console.log('Raw Seton data:', data);
+      console.log('Seton facilities found:', facilities);
+
+      if (!facilities || facilities.length === 0) {
+        console.log('No Seton facilities found');
+        return [];
+      }
+
+      // Extract THCIC_IDs for Seton facilities
+      const setonThcicIds = facilities.map(f => f.THCIC_ID);
+
+      // Now get admissions data for these facilities
+      const { data: admissions, error: admissionsError } = await supabase
+        .from('Texas State IP 2018')
+        .select('THCIC_ID')
+        .in('THCIC_ID', setonThcicIds);
+
+      if (admissionsError) {
+        console.error('Error fetching admissions:', admissionsError);
+        throw admissionsError;
+      }
+
+      console.log('Admissions data:', admissions);
 
       // Group by facility and count admissions
-      const admissionsByFacility = data?.reduce((acc: Record<string, SetonAdmissionData>, record: any) => {
-        const facilityName = record['Facility ID Table_TX']?.PROVIDER_NAME;
+      const admissionsByFacility = admissions?.reduce((acc: Record<number, SetonAdmissionData>, record: any) => {
         const thcicId = record.THCIC_ID;
         
-        if (facilityName && thcicId) {
-          const key = `${thcicId}_${facilityName}`;
-          if (!acc[key]) {
-            acc[key] = {
-              provider_name: facilityName,
+        if (thcicId) {
+          if (!acc[thcicId]) {
+            const facility = facilities.find(f => f.THCIC_ID === thcicId);
+            acc[thcicId] = {
+              provider_name: facility?.PROVIDER_NAME || 'Unknown',
               total_admissions: 0,
               thcic_id: thcicId
             };
           }
-          acc[key].total_admissions += 1;
+          acc[thcicId].total_admissions += 1;
         }
         
         return acc;
