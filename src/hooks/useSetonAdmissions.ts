@@ -17,11 +17,13 @@ export const useSetonAdmissions = () => {
       // Specific Seton facility THCIC_IDs
       const setonThcicIds = [597000, 559000, 497000, 971000, 921000, 861700, 797600, 770000, 424500, 797500];
 
-      // First, get facility names for these THCIC_IDs
+      console.log('Looking for THCIC IDs:', setonThcicIds);
+
+      // First, get facility names for these THCIC_IDs with proper quoting
       const { data: facilities, error: facilitiesError } = await supabase
-        .from('Facility ID Table_TX')
-        .select('THCIC_ID, PROVIDER_NAME')
-        .in('THCIC_ID', setonThcicIds);
+        .from('"Facility ID Table_TX"')
+        .select('"THCIC_ID", "PROVIDER_NAME"')
+        .in('"THCIC_ID"', setonThcicIds);
 
       if (facilitiesError) {
         console.error('Error fetching Seton facilities:', facilitiesError);
@@ -31,22 +33,23 @@ export const useSetonAdmissions = () => {
       console.log('Seton facilities found:', facilities);
 
       if (!facilities || facilities.length === 0) {
-        console.log('No Seton facilities found');
+        console.log('No Seton facilities found for the specified THCIC IDs');
         return [];
       }
 
-      // Now get admissions data for these facilities
+      // Now get admissions data for these facilities with proper quoting
       const { data: admissions, error: admissionsError } = await supabase
-        .from('Texas State IP 2018')
-        .select('THCIC_ID')
-        .in('THCIC_ID', setonThcicIds);
+        .from('"Texas State IP 2018"')
+        .select('"THCIC_ID"')
+        .in('"THCIC_ID"', setonThcicIds);
 
       if (admissionsError) {
         console.error('Error fetching admissions:', admissionsError);
         throw admissionsError;
       }
 
-      console.log('Admissions data:', admissions);
+      console.log('Admissions data records found:', admissions?.length || 0);
+      console.log('Sample admissions data:', admissions?.slice(0, 5));
 
       // Group by facility and count admissions
       const admissionsByFacility = admissions?.reduce((acc: Record<number, SetonAdmissionData>, record: any) => {
@@ -68,7 +71,8 @@ export const useSetonAdmissions = () => {
       }, {}) || {};
 
       const result = Object.values(admissionsByFacility);
-      console.log('Processed Seton admissions data:', result);
+      console.log('Final processed Seton admissions data:', result);
+      console.log('Total facilities with admissions:', result.length);
       
       return result;
     },
