@@ -14,9 +14,9 @@ export const useSetonAdmissions = () => {
     queryFn: async (): Promise<SetonAdmissionData[]> => {
       console.log('Fetching all Seton facilities dynamically...');
       
-      // First, get ALL facilities with "Seton" in the name
+      // First, get ALL facilities with "Seton" in the name using the renamed table
       const { data: setonFacilities, error: facilitiesError } = await supabase
-        .from('Facility ID Table_TX')
+        .from('facility_id_table_tx')
         .select('THCIC_ID, PROVIDER_NAME')
         .ilike('PROVIDER_NAME', '%Seton%');
 
@@ -26,6 +26,7 @@ export const useSetonAdmissions = () => {
       }
 
       console.log('All Seton facilities found:', setonFacilities);
+      console.log('Number of Seton facilities found:', setonFacilities?.length || 0);
 
       if (!setonFacilities || setonFacilities.length === 0) {
         console.log('No Seton facilities found');
@@ -48,6 +49,7 @@ export const useSetonAdmissions = () => {
       }
 
       console.log('Total admission records found:', admissions?.length || 0);
+      console.log('Sample admission records:', admissions?.slice(0, 5));
 
       // Group by facility and count admissions
       const admissionsByFacility = admissions?.reduce((acc: Record<number, SetonAdmissionData>, record: any) => {

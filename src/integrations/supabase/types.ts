@@ -9,7 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      "Facility ID Table_TX": {
+      facility_id_table_tx: {
         Row: {
           CERT_STATUS: string | null
           FAC_ACUTE_CARE_IND: string | null
