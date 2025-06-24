@@ -311,7 +311,7 @@ export type Database = {
           },
         ]
       }
-      "Texas State IP 2018": {
+      tx_state_IP_2018: {
         Row: {
           ADMIT_WEEKDAY: number | null
           ADMITTING_DIAGNOSIS: string | null

@@ -14,11 +14,11 @@ export const useSetonAdmissions = () => {
     queryFn: async (): Promise<SetonAdmissionData[]> => {
       console.log('Fetching all Seton facilities dynamically...');
       
-      // First, get ALL facilities with "Seton" in the name using the renamed table with quoted column names
+      // First, get ALL facilities with "Seton" in the name
       const { data: setonFacilities, error: facilitiesError } = await supabase
         .from('facility_id_table_tx')
-        .select('"THCIC_ID", "PROVIDER_NAME"')
-        .ilike('"PROVIDER_NAME"', '%Seton%');
+        .select('THCIC_ID, PROVIDER_NAME')
+        .ilike('PROVIDER_NAME', '%Seton%');
 
       if (facilitiesError) {
         console.error('Error fetching Seton facilities:', facilitiesError);
@@ -37,11 +37,11 @@ export const useSetonAdmissions = () => {
       const setonThcicIds = setonFacilities.map(facility => facility.THCIC_ID);
       console.log('Seton THCIC IDs to query:', setonThcicIds);
 
-      // Get admissions data for these facilities - fix the type inference issue
+      // Get admissions data from tx_state_IP_2018 table for these facilities
       const { data: admissions, error: admissionsError } = await supabase
-        .from('Texas State IP 2018')
-        .select('"THCIC_ID"')
-        .filter('"THCIC_ID"', 'in', `(${setonThcicIds.join(',')})`);
+        .from('tx_state_IP_2018')
+        .select('THCIC_ID')
+        .in('THCIC_ID', setonThcicIds);
 
       if (admissionsError) {
         console.error('Error fetching admissions:', admissionsError);
