@@ -14,11 +14,14 @@ export const useSetonAdmissions = () => {
     queryFn: async (): Promise<SetonAdmissionData[]> => {
       console.log('Fetching Seton admissions data...');
       
-      // First, get all Seton facilities from the Facility ID table
+      // Specific Seton facility THCIC_IDs
+      const setonThcicIds = [597000, 559000, 497000, 971000, 921000, 861700, 797600, 770000, 424500, 797500];
+
+      // First, get facility names for these THCIC_IDs
       const { data: facilities, error: facilitiesError } = await supabase
         .from('Facility ID Table_TX')
         .select('THCIC_ID, PROVIDER_NAME')
-        .ilike('PROVIDER_NAME', '%Seton%');
+        .in('THCIC_ID', setonThcicIds);
 
       if (facilitiesError) {
         console.error('Error fetching Seton facilities:', facilitiesError);
@@ -31,9 +34,6 @@ export const useSetonAdmissions = () => {
         console.log('No Seton facilities found');
         return [];
       }
-
-      // Extract THCIC_IDs for Seton facilities
-      const setonThcicIds = facilities.map(f => f.THCIC_ID);
 
       // Now get admissions data for these facilities
       const { data: admissions, error: admissionsError } = await supabase
