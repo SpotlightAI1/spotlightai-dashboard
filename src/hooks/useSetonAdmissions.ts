@@ -37,11 +37,11 @@ export const useSetonAdmissions = () => {
       const setonThcicIds = setonFacilities.map(facility => facility.THCIC_ID);
       console.log('Seton THCIC IDs to query:', setonThcicIds);
 
-      // Get admissions data for these facilities
+      // Get admissions data for these facilities - fix the type inference issue
       const { data: admissions, error: admissionsError } = await supabase
         .from('Texas State IP 2018')
         .select('"THCIC_ID"')
-        .in('"THCIC_ID"', setonThcicIds);
+        .filter('"THCIC_ID"', 'in', `(${setonThcicIds.join(',')})`);
 
       if (admissionsError) {
         console.error('Error fetching admissions:', admissionsError);
