@@ -50,10 +50,10 @@ export const SetonAdmissionsChart = () => {
 
   // Format data for the chart with shortened facility names for better display
   const chartData = setonData.map(item => ({
-    name: item.provider_name.replace(/Seton\s*/gi, '').trim() || item.provider_name,
-    fullName: item.provider_name,
+    name: item.PROVIDER_NAME.replace(/Seton\s*/gi, '').trim() || item.PROVIDER_NAME,
+    fullName: item.PROVIDER_NAME,
     admissions: item.total_admissions,
-    thcicId: item.thcic_id
+    thcicId: item.THCIC_ID
   }));
 
   return (

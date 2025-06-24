@@ -3,9 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SetonAdmissionData {
-  provider_name: string;
+  PROVIDER_NAME: string;
   total_admissions: number;
-  thcic_id: number;
+  THCIC_ID: number;
 }
 
 export const useSetonAdmissions = () => {
@@ -59,9 +59,9 @@ export const useSetonAdmissions = () => {
           if (!acc[thcicId]) {
             const facility = facilities.find(f => f.THCIC_ID === thcicId);
             acc[thcicId] = {
-              provider_name: facility?.PROVIDER_NAME || 'Unknown',
+              PROVIDER_NAME: facility?.PROVIDER_NAME || 'Unknown',
               total_admissions: 0,
-              thcic_id: thcicId
+              THCIC_ID: thcicId
             };
           }
           acc[thcicId].total_admissions += 1;
