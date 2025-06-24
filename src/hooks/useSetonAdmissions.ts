@@ -12,30 +12,30 @@ export const useSetonAdmissions = () => {
   return useQuery({
     queryKey: ['seton-admissions'],
     queryFn: async (): Promise<SetonAdmissionData[]> => {
-      console.log('Fetching all Seton and Dell Seton facilities...');
+      console.log('Fetching specific Seton facilities by THCIC_ID...');
       
-      // Step 1: Get ALL facilities with "Seton" or "Dell Seton" in the name
+      // Step 1: Define the specific THCIC_IDs for Seton facilities
+      const setonThcicIds = [852000, 975215, 597000, 559000, 497000, 971000, 921000, 861700, 797600, 770000, 424500, 797500];
+      console.log('Seton THCIC IDs to query:', setonThcicIds);
+
+      // Step 2: Get facility names for these THCIC_IDs
       const { data: setonFacilities, error: facilitiesError } = await supabase
         .from('facility_id_table_tx')
         .select('THCIC_ID, PROVIDER_NAME')
-        .or('PROVIDER_NAME.ilike.%Seton%,PROVIDER_NAME.ilike.%Dell Seton%');
+        .in('THCIC_ID', setonThcicIds);
 
       if (facilitiesError) {
         console.error('Error fetching Seton facilities:', facilitiesError);
         throw facilitiesError;
       }
 
-      console.log('All Seton/Dell Seton facilities found:', setonFacilities);
-      console.log('Number of Seton facilities found:', setonFacilities?.length || 0);
+      console.log('Seton facilities found:', setonFacilities);
+      console.log('Number of facilities found:', setonFacilities?.length || 0);
 
       if (!setonFacilities || setonFacilities.length === 0) {
         console.log('No Seton facilities found');
         return [];
       }
-
-      // Step 2: Extract THCIC_IDs for the admissions query
-      const setonThcicIds = setonFacilities.map(facility => facility.THCIC_ID);
-      console.log('Seton THCIC IDs to query:', setonThcicIds);
 
       // Step 3: Get admissions count by THCIC_ID from tx_state_IP_2018
       const { data: admissionsData, error: admissionsError } = await supabase
@@ -50,7 +50,7 @@ export const useSetonAdmissions = () => {
 
       console.log('Total admission records found:', admissionsData?.length || 0);
 
-      // Step 4: Count admissions by THCIC_ID (like Excel COUNTIF)
+      // Step 4: Count admissions by THCIC_ID
       const admissionCounts: Record<number, number> = {};
       admissionsData?.forEach(record => {
         if (record.THCIC_ID) {
@@ -60,7 +60,7 @@ export const useSetonAdmissions = () => {
 
       console.log('Admission counts by THCIC_ID:', admissionCounts);
 
-      // Step 5: Join facility data with admission counts (like Excel INDEX/MATCH + VLOOKUP)
+      // Step 5: Join facility data with admission counts
       const facilitiesWithAdmissions: SetonAdmissionData[] = setonFacilities.map(facility => ({
         PROVIDER_NAME: facility.PROVIDER_NAME || 'Unknown',
         total_admissions: admissionCounts[facility.THCIC_ID] || 0,
