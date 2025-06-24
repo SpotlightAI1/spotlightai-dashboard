@@ -9,6 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      "Facility ID Table_TX": {
+        Row: {
+          CERT_STATUS: string | null
+          FAC_ACUTE_CARE_IND: string | null
+          FAC_LONG_TERM_AC_IND: string | null
+          FAC_OTHER_LTC_IND: string | null
+          FAC_PEDS_IND: string | null
+          FAC_PSYCH_IND: string | null
+          FAC_REHAB_IND: string | null
+          FAC_SNF_IND: string | null
+          FAC_TEACHING_IND: string | null
+          POA_PROVIDER_INDICATOR: string | null
+          PROVIDER_NAME: string | null
+          THCIC_ID: number
+        }
+        Insert: {
+          CERT_STATUS?: string | null
+          FAC_ACUTE_CARE_IND?: string | null
+          FAC_LONG_TERM_AC_IND?: string | null
+          FAC_OTHER_LTC_IND?: string | null
+          FAC_PEDS_IND?: string | null
+          FAC_PSYCH_IND?: string | null
+          FAC_REHAB_IND?: string | null
+          FAC_SNF_IND?: string | null
+          FAC_TEACHING_IND?: string | null
+          POA_PROVIDER_INDICATOR?: string | null
+          PROVIDER_NAME?: string | null
+          THCIC_ID: number
+        }
+        Update: {
+          CERT_STATUS?: string | null
+          FAC_ACUTE_CARE_IND?: string | null
+          FAC_LONG_TERM_AC_IND?: string | null
+          FAC_OTHER_LTC_IND?: string | null
+          FAC_PEDS_IND?: string | null
+          FAC_PSYCH_IND?: string | null
+          FAC_REHAB_IND?: string | null
+          FAC_SNF_IND?: string | null
+          FAC_TEACHING_IND?: string | null
+          POA_PROVIDER_INDICATOR?: string | null
+          PROVIDER_NAME?: string | null
+          THCIC_ID?: number
+        }
+        Relationships: []
+      }
       healthcare_organizations: {
         Row: {
           beds: number | null
