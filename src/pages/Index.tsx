@@ -1,61 +1,55 @@
 
-import React, { useState } from 'react';
-import { DashboardHeader } from '@/components/DashboardHeader';
-import { MetricsOverview } from '@/components/MetricsOverview';
-import { ServiceLineBreakdown } from '@/components/ServiceLineBreakdown';
-import { ServiceLinePortfolio } from '@/components/ServiceLinePortfolio';
-import { HospitalSystemOverview } from '@/components/HospitalSystemOverview';
-import { MarketIntelligence } from '@/components/MarketIntelligence';
-import { PhysicianDrilldown } from '@/components/PhysicianDrilldown';
-import { ChatAgent } from '@/components/ChatAgent';
-import { SetonAdmissionsChart } from '@/components/SetonAdmissionsChart';
-import { StrategicImpactMatrix } from '@/components/StrategicImpactMatrix';
-import { SIMAnalysisPanel } from '@/components/SIMAnalysisPanel';
+import { MetricsOverview } from "@/components/MetricsOverview";
+import { StrategicImpactMatrix } from "@/components/StrategicImpactMatrix";
+import { SIMAnalysisPanel } from "@/components/SIMAnalysisPanel";
+import { ServiceLinePortfolio } from "@/components/ServiceLinePortfolio";
+import { BenchmarkComparison } from "@/components/BenchmarkComparison";
+import { StrategicAlerts } from "@/components/StrategicAlerts";
+import { DashboardHeader } from "@/components/DashboardHeader";
+import { Button } from "@/components/ui/button";
+import { Building2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Index = () => {
-  const [selectedServiceLine, setSelectedServiceLine] = useState<string | null>(null);
-  const [selectedPhysician, setSelectedPhysician] = useState<string | null>(null);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardHeader />
       
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        <MetricsOverview />
+      <main className="container mx-auto p-6 space-y-6">
+        {/* Quick Access to Organizations */}
+        <div className="bg-white rounded-lg shadow-sm border p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Organization Analysis</h2>
+              <p className="text-sm text-gray-600">View detailed SIM analysis for specific organizations</p>
+            </div>
+            <Link to="/organizations">
+              <Button className="flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                View Organizations
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="space-y-6">
+            <MetricsOverview />
+            <StrategicAlerts />
+          </div>
+          
+          <div className="space-y-6">
+            <SIMAnalysisPanel />
+          </div>
+        </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ServiceLineBreakdown 
-            onServiceLineSelect={setSelectedServiceLine}
-            selectedServiceLine={selectedServiceLine}
-          />
-          <MarketIntelligence />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <StrategicImpactMatrix />
           <ServiceLinePortfolio />
-          <HospitalSystemOverview />
         </div>
-
-        {/* Seton Admissions Chart */}
-        <SetonAdmissionsChart />
-
-        {/* Strategic Impact Matrix */}
-        <StrategicImpactMatrix />
-
-        {/* SIM Analysis Panel */}
-        <SIMAnalysisPanel />
-
-        {selectedServiceLine && (
-          <PhysicianDrilldown 
-            serviceLine={selectedServiceLine}
-            onPhysicianSelect={setSelectedPhysician}
-            selectedPhysician={selectedPhysician}
-          />
-        )}
+        
+        <BenchmarkComparison />
       </main>
-
-      <ChatAgent isOpen={isChatOpen} onToggle={() => setIsChatOpen(!isChatOpen)} />
     </div>
   );
 };
