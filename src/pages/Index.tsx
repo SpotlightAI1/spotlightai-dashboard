@@ -42,6 +42,9 @@ const Index = () => {
         {/* Strategic Impact Matrix */}
         <StrategicImpactMatrix />
 
+        {/* SIM Analysis Panel */}
+        <SIMAnalysisPanel />
+
         {selectedServiceLine && (
           <PhysicianDrilldown 
             serviceLine={selectedServiceLine}
