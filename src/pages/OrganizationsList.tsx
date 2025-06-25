@@ -3,48 +3,14 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Plus, Users, Bed, TrendingUp } from 'lucide-react';
+import { Building2, Plus, Users, Bed, TrendingUp, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { useOptimizedOrganizations } from '@/hooks/useOptimizedOrganizations';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { DataTableWithLoading } from '@/components/ui/data-table-with-loading';
 
 const OrganizationsList = () => {
-  const { data: organizations, isLoading, error } = useQuery({
-    queryKey: ['organizations'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('healthcare_organizations')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-gray-500">Loading organizations...</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="container mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-red-500">Error loading organizations</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const { data: organizations, isLoading, error, refetch } = useOptimizedOrganizations();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -54,15 +20,50 @@ const OrganizationsList = () => {
             <h1 className="text-3xl font-bold text-gray-900">Healthcare Organizations</h1>
             <p className="text-gray-600 mt-2">Manage and analyze your healthcare organization portfolio</p>
           </div>
-          <Link to="/organizations/new">
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Add New Organization
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => refetch()}
+              disabled={isLoading}
+              size="sm"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
             </Button>
-          </Link>
+            <Link to="/organizations/new">
+              <Button className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Add New Organization
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        {organizations && organizations.length === 0 ? (
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="flex flex-col items-center space-y-4">
+              <LoadingSpinner size="lg" />
+              <p className="text-gray-600">Loading organizations...</p>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-12 space-y-4">
+              <div className="text-red-600 text-center">
+                <p className="font-medium">Failed to load organizations</p>
+                <p className="text-sm text-gray-600 mt-1">{error.message}</p>
+              </div>
+              <Button onClick={() => refetch()} variant="outline" size="sm">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Try again
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {!isLoading && !error && organizations && organizations.length === 0 && (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Building2 className="h-12 w-12 text-gray-400 mb-4" />
@@ -78,16 +79,18 @@ const OrganizationsList = () => {
               </Link>
             </CardContent>
           </Card>
-        ) : (
+        )}
+
+        {!isLoading && !error && organizations && organizations.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {organizations?.map((org) => (
-              <Card key={org.id} className="hover:shadow-lg transition-shadow">
+            {organizations.map((org) => (
+              <Card key={org.id} className="hover:shadow-lg transition-shadow duration-200">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="flex items-center gap-2">
                         <Building2 className="h-5 w-5 text-blue-600" />
-                        {org.name}
+                        <span className="truncate">{org.name}</span>
                       </CardTitle>
                       <Badge variant="outline" className="mt-2">
                         {org.type}
@@ -99,7 +102,7 @@ const OrganizationsList = () => {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-600">Market:</span>
-                      <span className="font-medium">{org.market || 'N/A'}</span>
+                      <span className="font-medium truncate ml-2">{org.market || 'N/A'}</span>
                     </div>
                     
                     {org.beds && (
@@ -128,7 +131,7 @@ const OrganizationsList = () => {
                           <TrendingUp className="h-3 w-3" />
                           Revenue:
                         </span>
-                        <span className="font-medium">{org.annual_revenue_range}</span>
+                        <span className="font-medium text-xs">{org.annual_revenue_range}</span>
                       </div>
                     )}
 

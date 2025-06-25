@@ -301,6 +301,7 @@ export type Database = {
           er_amount: number | null
           esrd_amount: number | null
           ethnicity: string | null
+          facility_name: string | null
           first_payment_src: string | null
           id: string
           input_format: string | null
@@ -376,7 +377,6 @@ export type Database = {
           proc_code_7: string | null
           proc_code_8: string | null
           proc_code_9: string | null
-          provider_name: string | null
           pt_amount: number | null
           public_health_region: string | null
           race: string | null
@@ -433,6 +433,7 @@ export type Database = {
           er_amount?: number | null
           esrd_amount?: number | null
           ethnicity?: string | null
+          facility_name?: string | null
           first_payment_src?: string | null
           id?: string
           input_format?: string | null
@@ -508,7 +509,6 @@ export type Database = {
           proc_code_7?: string | null
           proc_code_8?: string | null
           proc_code_9?: string | null
-          provider_name?: string | null
           pt_amount?: number | null
           public_health_region?: string | null
           race?: string | null
@@ -565,6 +565,7 @@ export type Database = {
           er_amount?: number | null
           esrd_amount?: number | null
           ethnicity?: string | null
+          facility_name?: string | null
           first_payment_src?: string | null
           id?: string
           input_format?: string | null
@@ -640,7 +641,6 @@ export type Database = {
           proc_code_7?: string | null
           proc_code_8?: string | null
           proc_code_9?: string | null
-          provider_name?: string | null
           pt_amount?: number | null
           public_health_region?: string | null
           race?: string | null
