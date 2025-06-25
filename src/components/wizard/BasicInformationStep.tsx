@@ -10,14 +10,6 @@ interface BasicInformationStepProps {
   onUpdate: (data: Partial<WizardData>) => void;
 }
 
-const ORGANIZATION_TYPES = [
-  'Independent Health System',
-  'Regional Network',
-  'Specialty Provider',
-  'Critical Access Hospital',
-  'Academic Medical Center'
-];
-
 const REVENUE_RANGES = [
   'Under $10M',
   '$10M - $50M',
@@ -59,11 +51,10 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({ data
               <SelectValue placeholder="Select organization type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="independent_health_system">Independent Health System</SelectItem>
-              <SelectItem value="regional_network">Regional Network</SelectItem>
-              <SelectItem value="specialty_provider">Specialty Provider</SelectItem>
-              <SelectItem value="critical_access_hospital">Critical Access Hospital</SelectItem>
-              <SelectItem value="academic_medical_center">Academic Medical Center</SelectItem>
+              <SelectItem value="Independent">Independent Health System</SelectItem>
+              <SelectItem value="Regional">Regional Network</SelectItem>
+              <SelectItem value="Specialty">Specialty Provider</SelectItem>
+              <SelectItem value="Critical Access">Critical Access Hospital</SelectItem>
             </SelectContent>
           </Select>
         </div>

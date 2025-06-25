@@ -17,7 +17,7 @@ export const useWizardSubmission = (
     
     const organizationData = {
       name: wizardData.name,
-      type: wizardData.type,
+      type: wizardData.type as 'Independent' | 'Regional' | 'Specialty' | 'Critical Access',
       annual_revenue_range: wizardData.annual_revenue_range,
       market: wizardData.market,
       beds: wizardData.beds,
