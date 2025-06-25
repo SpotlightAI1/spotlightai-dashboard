@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Trash2, User } from 'lucide-react';
-import { WizardData } from '../OrganizationWizard';
+import { WizardData } from './types';
 
 interface StakeholderInformationStepProps {
   data: WizardData;

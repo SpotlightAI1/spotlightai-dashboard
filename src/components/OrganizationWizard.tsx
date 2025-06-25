@@ -1,9 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { BasicInformationStep } from './wizard/BasicInformationStep';
 import { OperationalDetailsStep } from './wizard/OperationalDetailsStep';
 import { StrategicContextStep } from './wizard/StrategicContextStep';
@@ -40,7 +38,10 @@ export const OrganizationWizard: React.FC<OrganizationWizardProps> = ({ onComple
       case 3:
         return wizardData.strategic_priorities.length > 0 && wizardData.current_challenges.length > 0;
       case 4:
-        return wizardData.stakeholders.length > 0 && wizardData.board_composition_type && wizardData.strategic_decision_timeline;
+        return wizardData.stakeholders.length > 0 && 
+               wizardData.board_composition_type && 
+               wizardData.strategic_decision_timeline &&
+               wizardData.stakeholders.some(s => s.primary_contact === true);
       default:
         return true;
     }
