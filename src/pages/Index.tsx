@@ -10,6 +10,7 @@ import { PhysicianDrilldown } from '@/components/PhysicianDrilldown';
 import { ChatAgent } from '@/components/ChatAgent';
 import { SetonAdmissionsChart } from '@/components/SetonAdmissionsChart';
 import { StrategicImpactMatrix } from '@/components/StrategicImpactMatrix';
+import { SIMAnalysisPanel } from '@/components/SIMAnalysisPanel';
 
 const Index = () => {
   const [selectedServiceLine, setSelectedServiceLine] = useState<string | null>(null);

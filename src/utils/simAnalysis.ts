@@ -1,4 +1,3 @@
-
 export interface OrganizationProfile {
   id: string;
   name: string;
@@ -37,7 +36,7 @@ export interface ActionItem {
 }
 
 export interface SIMAnalysisResult {
-  organization: OrganizationProfile;
+  organization_profile: OrganizationProfile;
   scored_initiatives: ScoredInitiative[];
   role_insights: RoleInsight[];
   action_items: ActionItem[];
@@ -46,6 +45,7 @@ export interface SIMAnalysisResult {
     organization_type_factors: Record<string, number>;
     size_factors: Record<string, number>;
   };
+  generated_at: string;
 }
 
 // Industry benchmark adjustments
@@ -350,7 +350,7 @@ function generateActionItems(initiatives: ScoredInitiative[], org: OrganizationP
   });
 }
 
-function generateExecutiveSummary(org: OrganizationProfile, initiatives: ScoredInitiative[]): string {
+function generateExecutiveSummary(org: OrganizationProfile, initiatives: ScoredInitiative[], benchmarks: { organization_type_factors: Record<string, number>, size_factors: Record<string, number> }): string {
   const sizeCategory = getSizeCategory(org.beds);
   const topInitiative = initiatives[0];
   const quickWins = initiatives.filter(i => i.quadrant === 'Quick Wins').length;
@@ -376,38 +376,117 @@ This analysis provides a data-driven foundation for strategic decision-making al
   `.trim();
 }
 
-export function generateSIMAnalysis(
+export const generateSIMAnalysis = (
   organization: OrganizationProfile,
   existingInitiatives: ScoredInitiative[] = []
-): SIMAnalysisResult {
-  console.log('Generating SIM analysis for:', organization.name);
+): SIMAnalysisResult => {
+  console.log('Generating SIM analysis for organization:', organization.name);
   
-  const scored_initiatives = generateScoredInitiatives(organization, existingInitiatives);
-  const role_insights = generateRoleInsights(organization, scored_initiatives);
-  const action_items = generateActionItems(scored_initiatives, organization);
-  const executive_summary = generateExecutiveSummary(organization, scored_initiatives);
+  // Get industry benchmarks for this organization type
+  const benchmarks = getIndustryBenchmarks(organization);
   
-  const sizeCategory = getSizeCategory(organization.beds);
-  const orgTypeAdj = ORGANIZATION_TYPE_ADJUSTMENTS[organization.type];
-  const sizeAdj = SIZE_ADJUSTMENTS[sizeCategory];
+  // Generate additional initiatives if we have fewer than 8
+  const allInitiatives = [...existingInitiatives];
   
-  return {
-    organization,
-    scored_initiatives,
-    role_insights,
-    action_items,
-    executive_summary,
-    industry_benchmarks: {
-      organization_type_factors: {
-        technology_complexity_multiplier: orgTypeAdj.technology_complexity_multiplier,
-        financial_impact_multiplier: orgTypeAdj.financial_impact_multiplier,
-        disruption_boost: orgTypeAdj.disruption_boost
-      },
-      size_factors: {
-        complexity_multiplier: sizeAdj.complexity_multiplier,
-        financial_multiplier: sizeAdj.financial_multiplier,
-        size_category: sizeCategory
+  if (allInitiatives.length < 8) {
+    const additionalInitiatives = generateInitiativesForOrganization(organization, 8 - allInitiatives.length);
+    allInitiatives.push(...additionalInitiatives);
+  }
+  
+  // Score all initiatives
+  const scoredInitiatives = allInitiatives.map(initiative => {
+    const baseScore = (
+      initiative.financial_impact * benchmarks.organization_type_factors.financial_impact_multiplier +
+      (6 - initiative.operational_complexity) * benchmarks.organization_type_factors.technology_complexity_multiplier +
+      (initiative.competitive_disruption + benchmarks.organization_type_factors.disruption_boost) +
+      initiative.time_urgency
+    ) / 4;
+    
+    // Apply organization-specific adjustments
+    let adjustedScore = baseScore;
+    
+    // Size-based adjustments
+    if (organization.beds < 150) {
+      // Smaller hospitals - reduce complexity tolerance
+      adjustedScore = adjustedScore * 0.9;
+    } else if (organization.beds > 400) {
+      // Larger hospitals - increase impact potential
+      adjustedScore = adjustedScore * 1.1;
+    }
+    
+    // Revenue-based adjustments
+    if (organization.revenue < 100000000) {
+      // Lower revenue - emphasize cost control
+      if (initiative.initiative_name.toLowerCase().includes('cost') || 
+          initiative.initiative_name.toLowerCase().includes('efficiency')) {
+        adjustedScore = adjustedScore * 1.2;
       }
     }
+    
+    const finalScore = Math.max(1, Math.min(5, adjustedScore));
+    
+    // Determine quadrant based on impact vs complexity
+    let quadrant: ScoredInitiative['quadrant'];
+    const complexityScore = initiative.operational_complexity;
+    const impactScore = initiative.financial_impact;
+    
+    if (impactScore >= 3 && complexityScore <= 3) {
+      quadrant = 'Quick Wins';
+    } else if (impactScore >= 3 && complexityScore > 3) {
+      quadrant = 'Strategic Bets';
+    } else if (impactScore < 3 && complexityScore <= 3) {
+      quadrant = 'Fill-ins';
+    } else {
+      quadrant = 'Money Pits';
+    }
+    
+    return {
+      ...initiative,
+      priority_score: parseFloat(finalScore.toFixed(1)), // Fix: ensure this is a number
+      quadrant
+    };
+  });
+  
+  // Sort by priority score
+  scoredInitiatives.sort((a, b) => b.priority_score - a.priority_score);
+  
+  // Generate role-specific insights
+  const roleInsights = generateRoleInsights(organization, scoredInitiatives);
+  
+  // Generate action items
+  const actionItems = generateActionItems(scoredInitiatives, organization);
+  
+  // Generate executive summary
+  const executiveSummary = generateExecutiveSummary(organization, scoredInitiatives, benchmarks);
+  
+  return {
+    organization_profile: organization,
+    scored_initiatives: scoredInitiatives,
+    role_insights: roleInsights,
+    action_items: actionItems,
+    executive_summary: executiveSummary,
+    industry_benchmarks: benchmarks,
+    generated_at: new Date().toISOString()
   };
+};
+
+function getIndustryBenchmarks(org: OrganizationProfile): { organization_type_factors: Record<string, number>, size_factors: Record<string, number> } {
+  // Implement logic to fetch industry benchmarks for the given organization type and size
+  return {
+    organization_type_factors: {
+      technology_complexity_multiplier: 1.0,
+      financial_impact_multiplier: 1.0,
+      disruption_boost: 0.0
+    },
+    size_factors: {
+      complexity_multiplier: 1.0,
+      financial_multiplier: 1.0,
+      size_category: 'medium'
+    }
+  };
+}
+
+function generateInitiativesForOrganization(org: OrganizationProfile, count: number): ScoredInitiative[] {
+  // Implement logic to generate additional initiatives for the given organization
+  return [];
 }
