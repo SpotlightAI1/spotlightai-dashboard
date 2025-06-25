@@ -6,6 +6,7 @@ import { ServiceLinePortfolio } from "@/components/ServiceLinePortfolio";
 import { BenchmarkComparison } from "@/components/BenchmarkComparison";
 import { StrategicAlerts } from "@/components/StrategicAlerts";
 import { DashboardHeader } from "@/components/DashboardHeader";
+import { SIMSummaryWidget } from "@/components/SIMSummaryWidget";
 import { Button } from "@/components/ui/button";
 import { Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -31,6 +32,9 @@ const Index = () => {
             </Link>
           </div>
         </div>
+
+        {/* SIM Portfolio Summary - Full Width */}
+        <SIMSummaryWidget />
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <div className="space-y-6">
