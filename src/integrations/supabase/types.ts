@@ -1101,7 +1101,13 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      my_dashboard_data: {
+        Row: {
+          PROVIDER_NAME: string | null
+          total_admissions: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

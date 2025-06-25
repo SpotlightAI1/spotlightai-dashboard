@@ -1,6 +1,7 @@
 
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
 
 export interface OptimizedQueryOptions<T> extends Omit<UseQueryOptions<T>, 'queryKey' | 'queryFn'> {
   queryKey: string[];
@@ -18,23 +19,27 @@ export const useOptimizedQuery = <T>({
 }: OptimizedQueryOptions<T>) => {
   const { toast } = useToast();
 
-  return useQuery({
+  const query = useQuery({
     queryKey,
     queryFn,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-    onError: (error: Error) => {
-      console.error(`Query error for ${queryKey.join('-')}:`, error);
-      if (showErrorToast) {
-        toast({
-          title: "Error",
-          description: error.message || errorMessage,
-          variant: "destructive",
-        });
-      }
-    },
     ...options,
   });
+
+  // Handle errors using useEffect instead of onError callback
+  useEffect(() => {
+    if (query.error && showErrorToast) {
+      console.error(`Query error for ${queryKey.join('-')}:`, query.error);
+      toast({
+        title: "Error",
+        description: query.error.message || errorMessage,
+        variant: "destructive",
+      });
+    }
+  }, [query.error, showErrorToast, errorMessage, queryKey, toast]);
+
+  return query;
 };
