@@ -1,3 +1,4 @@
+
 export interface OrganizationProfile {
   id: string;
   name: string;
@@ -442,7 +443,7 @@ export const generateSIMAnalysis = (
     
     return {
       ...initiative,
-      priority_score: parseFloat(finalScore.toFixed(1)), // Fix: ensure this is a number
+      priority_score: parseFloat(finalScore.toFixed(1)),
       quadrant
     };
   });
@@ -471,22 +472,26 @@ export const generateSIMAnalysis = (
 };
 
 function getIndustryBenchmarks(org: OrganizationProfile): { organization_type_factors: Record<string, number>, size_factors: Record<string, number> } {
-  // Implement logic to fetch industry benchmarks for the given organization type and size
+  const orgTypeAdj = ORGANIZATION_TYPE_ADJUSTMENTS[org.type];
+  const sizeCategory = getSizeCategory(org.beds);
+  const sizeAdj = SIZE_ADJUSTMENTS[sizeCategory];
+  
   return {
     organization_type_factors: {
-      technology_complexity_multiplier: 1.0,
-      financial_impact_multiplier: 1.0,
-      disruption_boost: 0.0
+      technology_complexity_multiplier: orgTypeAdj.technology_complexity_multiplier,
+      financial_impact_multiplier: orgTypeAdj.financial_impact_multiplier,
+      disruption_boost: orgTypeAdj.disruption_boost
     },
     size_factors: {
-      complexity_multiplier: 1.0,
-      financial_multiplier: 1.0,
-      size_category: 'medium'
+      complexity_multiplier: sizeAdj.complexity_multiplier,
+      financial_multiplier: sizeAdj.financial_multiplier,
+      size_category: sizeCategory
     }
   };
 }
 
 function generateInitiativesForOrganization(org: OrganizationProfile, count: number): ScoredInitiative[] {
-  // Implement logic to generate additional initiatives for the given organization
-  return [];
+  // Use the common initiatives generation logic
+  const generated = generateScoredInitiatives(org, []);
+  return generated.slice(0, count);
 }
