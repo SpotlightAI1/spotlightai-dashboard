@@ -18,6 +18,7 @@ interface QuadrantMoverModalProps {
     financial_impact: number;
     operational_complexity: number;
     currentQuadrant: string;
+    description?: string;
   } | null;
   targetQuadrant: string;
   onMove?: () => void;
