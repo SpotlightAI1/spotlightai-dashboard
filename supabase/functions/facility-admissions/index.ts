@@ -21,49 +21,63 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Query to get facility admissions data with provider names
-    const { data, error } = await supabase
+    // First, get all admissions data with THCIC_ID
+    const { data: admissionsData, error: admissionsError } = await supabase
       .from('tx_state_IP_2018')
-      .select(`
-        THCIC_ID,
-        facility_id_table_tx!inner(
-          PROVIDER_NAME,
-          THCIC_ID
-        )
-      `);
+      .select('THCIC_ID')
+      .not('THCIC_ID', 'is', null);
 
-    if (error) {
-      console.error('Database query error:', error);
-      throw error;
+    if (admissionsError) {
+      console.error('Error fetching admissions data:', admissionsError);
+      throw admissionsError;
     }
 
-    console.log(`Retrieved ${data?.length || 0} records from database`);
+    console.log(`Retrieved ${admissionsData?.length || 0} admission records`);
 
-    // Group by facility and count admissions
-    const facilityAdmissions = data?.reduce((acc: Record<string, any>, record: any) => {
-      const facilityName = record.facility_id_table_tx?.PROVIDER_NAME;
-      const thcicId = record.facility_id_table_tx?.THCIC_ID || record.THCIC_ID;
-      
-      if (facilityName && thcicId) {
-        const key = `${thcicId}_${facilityName}`;
-        if (!acc[key]) {
-          acc[key] = {
+    // Get all facility information
+    const { data: facilitiesData, error: facilitiesError } = await supabase
+      .from('facility_id_table_tx')
+      .select('THCIC_ID, PROVIDER_NAME')
+      .not('PROVIDER_NAME', 'is', null);
+
+    if (facilitiesError) {
+      console.error('Error fetching facilities data:', facilitiesError);
+      throw facilitiesError;
+    }
+
+    console.log(`Retrieved ${facilitiesData?.length || 0} facility records`);
+
+    // Create a map of THCIC_ID to facility name for quick lookup
+    const facilityMap = new Map();
+    facilitiesData?.forEach(facility => {
+      if (facility.THCIC_ID && facility.PROVIDER_NAME) {
+        facilityMap.set(facility.THCIC_ID, facility.PROVIDER_NAME);
+      }
+    });
+
+    // Count admissions by facility
+    const facilityAdmissions = new Map();
+    admissionsData?.forEach(admission => {
+      if (admission.THCIC_ID && facilityMap.has(admission.THCIC_ID)) {
+        const facilityName = facilityMap.get(admission.THCIC_ID);
+        const key = `${admission.THCIC_ID}_${facilityName}`;
+        
+        if (!facilityAdmissions.has(key)) {
+          facilityAdmissions.set(key, {
             name: facilityName,
             value: 0,
-            thcicId: thcicId
-          };
+            thcicId: admission.THCIC_ID
+          });
         }
-        acc[key].value += 1; // Count each record as one admission
+        facilityAdmissions.get(key).value += 1;
       }
-      
-      return acc;
-    }, {}) || {};
+    });
 
     // Convert to array and get top 10
-    const topFacilities = Object.values(facilityAdmissions)
-      .sort((a: any, b: any) => b.value - a.value)
+    const topFacilities = Array.from(facilityAdmissions.values())
+      .sort((a, b) => b.value - a.value)
       .slice(0, 10)
-      .map((facility: any, index: number) => ({
+      .map((facility, index) => ({
         id: index + 1,
         name: facility.name.length > 30 
           ? facility.name.substring(0, 30) + '...' 
@@ -79,8 +93,8 @@ serve(async (req) => {
       success: true,
       data: topFacilities,
       metadata: {
-        totalFacilities: Object.keys(facilityAdmissions).length,
-        totalAdmissions: Object.values(facilityAdmissions).reduce((sum: number, facility: any) => sum + facility.value, 0),
+        totalFacilities: facilityAdmissions.size,
+        totalAdmissions: Array.from(facilityAdmissions.values()).reduce((sum, facility) => sum + facility.value, 0),
         queryTime: new Date().toISOString()
       }
     };
