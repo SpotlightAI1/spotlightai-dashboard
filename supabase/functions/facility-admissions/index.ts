@@ -21,11 +21,11 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // First, get all admissions data with THCIC_ID
+    // Get admissions data with PROVIDER_NAME from tx_state_IP_2018 table only
     const { data: admissionsData, error: admissionsError } = await supabase
       .from('tx_state_IP_2018')
-      .select('THCIC_ID')
-      .not('THCIC_ID', 'is', null);
+      .select('PROVIDER_NAME, THCIC_ID')
+      .not('PROVIDER_NAME', 'is', null);
 
     if (admissionsError) {
       console.error('Error fetching admissions data:', admissionsError);
@@ -34,32 +34,11 @@ serve(async (req) => {
 
     console.log(`Retrieved ${admissionsData?.length || 0} admission records`);
 
-    // Get all facility information
-    const { data: facilitiesData, error: facilitiesError } = await supabase
-      .from('facility_id_table_tx')
-      .select('THCIC_ID, PROVIDER_NAME')
-      .not('PROVIDER_NAME', 'is', null);
-
-    if (facilitiesError) {
-      console.error('Error fetching facilities data:', facilitiesError);
-      throw facilitiesError;
-    }
-
-    console.log(`Retrieved ${facilitiesData?.length || 0} facility records`);
-
-    // Create a map of THCIC_ID to facility name for quick lookup
-    const facilityMap = new Map();
-    facilitiesData?.forEach(facility => {
-      if (facility.THCIC_ID && facility.PROVIDER_NAME) {
-        facilityMap.set(facility.THCIC_ID, facility.PROVIDER_NAME);
-      }
-    });
-
-    // Count admissions by facility
+    // Count admissions by facility using PROVIDER_NAME
     const facilityAdmissions = new Map();
     admissionsData?.forEach(admission => {
-      if (admission.THCIC_ID && facilityMap.has(admission.THCIC_ID)) {
-        const facilityName = facilityMap.get(admission.THCIC_ID);
+      if (admission.PROVIDER_NAME) {
+        const facilityName = admission.PROVIDER_NAME;
         const key = `${admission.THCIC_ID}_${facilityName}`;
         
         if (!facilityAdmissions.has(key)) {
