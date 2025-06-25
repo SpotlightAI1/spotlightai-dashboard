@@ -127,13 +127,32 @@ When providing strategic recommendations, consider their specific constraints an
     try {
       const masterPrompt = generateMasterPrompt(wizardData);
       
+      // Map organization type to match database enum if needed
+      const organizationType = wizardData.type;
+      
+      // Create the organization record with proper type casting
+      const organizationData = {
+        name: wizardData.name,
+        type: organizationType as any, // Type assertion for now since generated types may be outdated
+        annual_revenue_range: wizardData.annual_revenue_range,
+        market: wizardData.market,
+        beds: wizardData.beds,
+        employee_count: wizardData.employee_count,
+        market_position: wizardData.market_position,
+        ehr_system: wizardData.ehr_system,
+        strategic_priorities: wizardData.strategic_priorities,
+        current_challenges: wizardData.current_challenges,
+        technology_maturity_level: wizardData.technology_maturity_level,
+        change_management_capability: wizardData.change_management_capability,
+        board_composition_type: wizardData.board_composition_type,
+        strategic_decision_timeline: wizardData.strategic_decision_timeline,
+        master_prompt: masterPrompt,
+        setup_wizard_version: 1
+      };
+
       const { data: organization, error } = await supabase
         .from('healthcare_organizations')
-        .insert({
-          ...wizardData,
-          master_prompt: masterPrompt,
-          setup_wizard_version: 1
-        })
+        .insert(organizationData as any) // Type assertion since generated types may be outdated
         .select()
         .single();
 
@@ -193,14 +212,33 @@ When providing strategic recommendations, consider their specific constraints an
     try {
       const masterPrompt = generateMasterPrompt(wizardData);
       
+      // Map organization type to match database enum if needed
+      const organizationType = wizardData.type;
+      
+      // Create the organization record with onboarding completion timestamp
+      const organizationData = {
+        name: wizardData.name,
+        type: organizationType as any, // Type assertion for now
+        annual_revenue_range: wizardData.annual_revenue_range,
+        market: wizardData.market,
+        beds: wizardData.beds,
+        employee_count: wizardData.employee_count,
+        market_position: wizardData.market_position,
+        ehr_system: wizardData.ehr_system,
+        strategic_priorities: wizardData.strategic_priorities,
+        current_challenges: wizardData.current_challenges,
+        technology_maturity_level: wizardData.technology_maturity_level,
+        change_management_capability: wizardData.change_management_capability,
+        board_composition_type: wizardData.board_composition_type,
+        strategic_decision_timeline: wizardData.strategic_decision_timeline,
+        master_prompt: masterPrompt,
+        onboarding_completed_at: new Date().toISOString(),
+        setup_wizard_version: 1
+      };
+
       const { data: organization, error } = await supabase
         .from('healthcare_organizations')
-        .insert({
-          ...wizardData,
-          master_prompt: masterPrompt,
-          onboarding_completed_at: new Date().toISOString(),
-          setup_wizard_version: 1
-        })
+        .insert(organizationData as any) // Type assertion since generated types may be outdated
         .select()
         .single();
 
