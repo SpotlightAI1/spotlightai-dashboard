@@ -1,4 +1,5 @@
 
+
 export interface OrganizationProfile {
   id: string;
   name: string;
@@ -484,8 +485,7 @@ function getIndustryBenchmarks(org: OrganizationProfile): { organization_type_fa
     },
     size_factors: {
       complexity_multiplier: sizeAdj.complexity_multiplier,
-      financial_multiplier: sizeAdj.financial_multiplier,
-      size_category: sizeCategory
+      financial_multiplier: sizeAdj.financial_multiplier
     }
   };
 }
@@ -495,3 +495,4 @@ function generateInitiativesForOrganization(org: OrganizationProfile, count: num
   const generated = generateScoredInitiatives(org, []);
   return generated.slice(0, count);
 }
+
