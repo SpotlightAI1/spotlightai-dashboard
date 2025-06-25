@@ -1,4 +1,3 @@
-
 import { MetricsOverview } from "@/components/MetricsOverview";
 import { StrategicImpactMatrix } from "@/components/StrategicImpactMatrix";
 import { SIMAnalysisPanel } from "@/components/SIMAnalysisPanel";
@@ -10,49 +9,49 @@ import { SIMSummaryWidget } from "@/components/SIMSummaryWidget";
 import { Button } from "@/components/ui/button";
 import { Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { SetonAdmissionsChart } from "@/components/SetonAdmissionsChart";
+import { FacilityAdmissionsChart } from "@/components/FacilityAdmissionsChart";
+import { PortfolioComposition } from "@/components/PortfolioComposition";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <DashboardHeader />
       
-      <main className="container mx-auto p-6 space-y-6">
-        {/* Quick Access to Organizations */}
-        <div className="bg-white rounded-lg shadow-sm border p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">Organization Analysis</h2>
-              <p className="text-sm text-gray-600">View detailed SIM analysis for specific organizations</p>
-            </div>
-            <Link to="/organizations">
-              <Button className="flex items-center gap-2">
-                <Building2 className="h-4 w-4" />
-                View Organizations
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {/* SIM Portfolio Summary - Full Width */}
-        <SIMSummaryWidget />
-
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div className="space-y-6">
-            <MetricsOverview />
-            <StrategicAlerts />
-          </div>
-          
-          <div className="space-y-6">
-            <SIMAnalysisPanel />
-          </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Overview Section */}
+        <div className="mb-8">
+          <MetricsOverview />
         </div>
         
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        {/* Strategic Planning Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <StrategicImpactMatrix />
-          <ServiceLinePortfolio />
+          <SIMAnalysisPanel />
         </div>
         
-        <BenchmarkComparison />
+        {/* Service Line Performance */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+          <ServiceLinePortfolio />
+          <BenchmarkComparison />
+        </div>
+        
+        {/* Market Data and Insights */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+          <SetonAdmissionsChart />
+          <FacilityAdmissionsChart />
+        </div>
+        
+        {/* Strategic Insights */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <StrategicAlerts />
+          <SIMSummaryWidget />
+        </div>
+        
+        {/* Additional Analysis */}
+        <div className="mb-8">
+          <PortfolioComposition />
+        </div>
       </main>
     </div>
   );

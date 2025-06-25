@@ -1101,6 +1101,13 @@ export type Database = {
       }
     }
     Views: {
+      mike_dashboard_data: {
+        Row: {
+          PROVIDER_NAME: string | null
+          total_admissions: number | null
+        }
+        Relationships: []
+      }
       my_dashboard_data: {
         Row: {
           PROVIDER_NAME: string | null
