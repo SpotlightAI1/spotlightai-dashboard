@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -166,7 +165,7 @@ When providing strategic recommendations, consider their specific constraints an
           email: stakeholder.email,
           phone: stakeholder.phone,
           role_type: stakeholder.role_type,
-          primary_contact: Boolean(stakeholder.primary_contact), // Ensure boolean type
+          primary_contact: stakeholder.primary_contact === true || stakeholder.primary_contact === 'true',
           organization_id: organization.id
         }));
 
@@ -257,7 +256,7 @@ When providing strategic recommendations, consider their specific constraints an
           email: stakeholder.email,
           phone: stakeholder.phone,
           role_type: stakeholder.role_type,
-          primary_contact: Boolean(stakeholder.primary_contact), // Ensure boolean type
+          primary_contact: stakeholder.primary_contact === true || stakeholder.primary_contact === 'true',
           organization_id: organization.id
         }));
 
