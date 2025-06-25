@@ -16,14 +16,14 @@ export const useSetonAdmissions = () => {
       
       // Query to get admissions data for Seton facilities
       const { data, error } = await supabase
-        .from('Texas State IP 2018')
+        .from('tx_state_IP_2018')
         .select(`
           THCIC_ID,
-          Facility ID Table_TX!inner(
+          facility_id_table_tx!inner(
             PROVIDER_NAME
           )
         `)
-        .ilike('Facility ID Table_TX.PROVIDER_NAME', '%Seton%');
+        .ilike('facility_id_table_tx.PROVIDER_NAME', '%Seton%');
 
       if (error) {
         console.error('Error fetching Seton admissions:', error);
@@ -34,7 +34,7 @@ export const useSetonAdmissions = () => {
 
       // Group by facility and count admissions
       const admissionsByFacility = data?.reduce((acc: Record<string, SetonAdmissionData>, record: any) => {
-        const facilityName = record['Facility ID Table_TX']?.PROVIDER_NAME;
+        const facilityName = record['facility_id_table_tx']?.PROVIDER_NAME;
         const thcicId = record.THCIC_ID;
         
         if (facilityName && thcicId) {
