@@ -56,38 +56,71 @@ export type Database = {
       }
       healthcare_organizations: {
         Row: {
+          annual_revenue_range: string | null
           beds: number | null
+          board_composition_type: string | null
+          change_management_capability: number | null
           created_at: string
           current_challenges: string[] | null
+          ehr_system: string | null
+          employee_count: number | null
           id: string
           market: string | null
+          market_position: string | null
+          master_prompt: string | null
           name: string
+          onboarding_completed_at: string | null
           revenue: number | null
+          setup_wizard_version: number | null
+          strategic_decision_timeline: string | null
           strategic_priorities: string[] | null
+          technology_maturity_level: number | null
           type: Database["public"]["Enums"]["organization_type"]
           updated_at: string
         }
         Insert: {
+          annual_revenue_range?: string | null
           beds?: number | null
+          board_composition_type?: string | null
+          change_management_capability?: number | null
           created_at?: string
           current_challenges?: string[] | null
+          ehr_system?: string | null
+          employee_count?: number | null
           id?: string
           market?: string | null
+          market_position?: string | null
+          master_prompt?: string | null
           name: string
+          onboarding_completed_at?: string | null
           revenue?: number | null
+          setup_wizard_version?: number | null
+          strategic_decision_timeline?: string | null
           strategic_priorities?: string[] | null
+          technology_maturity_level?: number | null
           type: Database["public"]["Enums"]["organization_type"]
           updated_at?: string
         }
         Update: {
+          annual_revenue_range?: string | null
           beds?: number | null
+          board_composition_type?: string | null
+          change_management_capability?: number | null
           created_at?: string
           current_challenges?: string[] | null
+          ehr_system?: string | null
+          employee_count?: number | null
           id?: string
           market?: string | null
+          market_position?: string | null
+          master_prompt?: string | null
           name?: string
+          onboarding_completed_at?: string | null
           revenue?: number | null
+          setup_wizard_version?: number | null
+          strategic_decision_timeline?: string | null
           strategic_priorities?: string[] | null
+          technology_maturity_level?: number | null
           type?: Database["public"]["Enums"]["organization_type"]
           updated_at?: string
         }
@@ -636,6 +669,82 @@ export type Database = {
         }
         Relationships: []
       }
+      organization_challenges: {
+        Row: {
+          challenge_name: string
+          created_at: string
+          id: string
+          mitigation_status: string | null
+          organization_id: string | null
+          severity_level: number | null
+          updated_at: string
+        }
+        Insert: {
+          challenge_name: string
+          created_at?: string
+          id?: string
+          mitigation_status?: string | null
+          organization_id?: string | null
+          severity_level?: number | null
+          updated_at?: string
+        }
+        Update: {
+          challenge_name?: string
+          created_at?: string
+          id?: string
+          mitigation_status?: string | null
+          organization_id?: string | null
+          severity_level?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_challenges_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "healthcare_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_priorities: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string | null
+          priority_name: string
+          priority_rank: number | null
+          target_completion_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          priority_name: string
+          priority_rank?: number | null
+          target_completion_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          priority_name?: string
+          priority_rank?: number | null
+          target_completion_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_priorities_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "healthcare_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_line_benchmarks: {
         Row: {
           average_revenue_percentage: number | null
@@ -668,6 +777,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      stakeholders: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          organization_id: string | null
+          phone: string | null
+          primary_contact: boolean | null
+          role_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          organization_id?: string | null
+          phone?: string | null
+          primary_contact?: boolean | null
+          role_type: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          organization_id?: string | null
+          phone?: string | null
+          primary_contact?: boolean | null
+          role_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stakeholders_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "healthcare_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       strategic_initiatives: {
         Row: {
