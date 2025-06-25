@@ -9,6 +9,7 @@ import { MarketIntelligence } from '@/components/MarketIntelligence';
 import { PhysicianDrilldown } from '@/components/PhysicianDrilldown';
 import { ChatAgent } from '@/components/ChatAgent';
 import { SetonAdmissionsChart } from '@/components/SetonAdmissionsChart';
+import { StrategicImpactMatrix } from '@/components/StrategicImpactMatrix';
 
 const Index = () => {
   const [selectedServiceLine, setSelectedServiceLine] = useState<string | null>(null);
@@ -35,8 +36,11 @@ const Index = () => {
           <HospitalSystemOverview />
         </div>
 
-        {/* New Seton Admissions Chart */}
+        {/* Seton Admissions Chart */}
         <SetonAdmissionsChart />
+
+        {/* Strategic Impact Matrix */}
+        <StrategicImpactMatrix />
 
         {selectedServiceLine && (
           <PhysicianDrilldown 
