@@ -21,7 +21,8 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get admissions data with PROVIDER_NAME from tx_state_IP_2018 table only
+    // Get ALL admissions data with PROVIDER_NAME from tx_state_IP_2018 table
+    // Remove any limit to get all records
     const { data: admissionsData, error: admissionsError } = await supabase
       .from('tx_state_IP_2018')
       .select('PROVIDER_NAME, THCIC_ID')
@@ -34,27 +35,33 @@ serve(async (req) => {
 
     console.log(`Retrieved ${admissionsData?.length || 0} admission records`);
 
-    // Count admissions by facility using PROVIDER_NAME
+    // Count admissions by facility - each row = 1 admission
     const facilityAdmissions = new Map();
     admissionsData?.forEach(admission => {
       if (admission.PROVIDER_NAME) {
-        const facilityName = admission.PROVIDER_NAME;
-        const key = `${admission.THCIC_ID}_${facilityName}`;
+        const facilityName = admission.PROVIDER_NAME.trim();
         
-        if (!facilityAdmissions.has(key)) {
-          facilityAdmissions.set(key, {
+        if (!facilityAdmissions.has(facilityName)) {
+          facilityAdmissions.set(facilityName, {
             name: facilityName,
-            value: 0,
-            thcicId: admission.THCIC_ID
+            count: 0,
+            thcicIds: new Set()
           });
         }
-        facilityAdmissions.get(key).value += 1;
+        
+        // Increment admission count (each row is one admission)
+        facilityAdmissions.get(facilityName).count += 1;
+        
+        // Track THCIC_IDs for this facility
+        if (admission.THCIC_ID) {
+          facilityAdmissions.get(facilityName).thcicIds.add(admission.THCIC_ID);
+        }
       }
     });
 
-    // Convert to array and get top 10
+    // Convert to array and get top 10 by admission count
     const topFacilities = Array.from(facilityAdmissions.values())
-      .sort((a, b) => b.value - a.value)
+      .sort((a, b) => b.count - a.count)
       .slice(0, 10)
       .map((facility, index) => ({
         id: index + 1,
@@ -62,18 +69,20 @@ serve(async (req) => {
           ? facility.name.substring(0, 30) + '...' 
           : facility.name,
         fullName: facility.name,
-        value: facility.value,
-        thcicId: facility.thcicId
+        value: facility.count,
+        thcicId: Array.from(facility.thcicIds)[0] || null // Use first THCIC_ID found
       }));
 
     console.log(`Processed top 10 facilities:`, topFacilities.map(f => ({ name: f.name, value: f.value })));
+
+    const totalAdmissions = Array.from(facilityAdmissions.values()).reduce((sum, facility) => sum + facility.count, 0);
 
     const response = {
       success: true,
       data: topFacilities,
       metadata: {
         totalFacilities: facilityAdmissions.size,
-        totalAdmissions: Array.from(facilityAdmissions.values()).reduce((sum, facility) => sum + facility.value, 0),
+        totalAdmissions: totalAdmissions,
         queryTime: new Date().toISOString()
       }
     };
