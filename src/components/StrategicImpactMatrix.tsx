@@ -3,97 +3,19 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { TooltipProvider, Tooltip as UITooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Info } from 'lucide-react';
+import { Info, Loader2 } from 'lucide-react';
+import { useStrategicInitiatives } from '@/hooks/useStrategicInitiatives';
 
-interface Initiative {
-  id: string;
-  name: string;
-  financialImpact: number; // 1-5 scale
-  operationalComplexity: number; // 1-5 scale
-  competitiveDisruption: 'low' | 'medium' | 'high';
-  timeUrgency: number; // 1-5 scale (affects dot size)
-  description: string;
-  estimatedCost: string;
-  timeline: string;
-}
+const getDisruptionColor = (disruption: number) => {
+  if (disruption <= 2) return '#22c55e'; // green - low
+  if (disruption <= 3) return '#eab308'; // yellow - medium
+  return '#ef4444'; // red - high
+};
 
-// Sample data - in a real app this would come from props or a hook
-const sampleInitiatives: Initiative[] = [
-  {
-    id: '1',
-    name: 'AI Diagnostic Platform',
-    financialImpact: 4.5,
-    operationalComplexity: 4.2,
-    competitiveDisruption: 'high',
-    timeUrgency: 4.8,
-    description: 'Implementation of AI-powered diagnostic tools across all service lines',
-    estimatedCost: '$2.5M',
-    timeline: '18 months'
-  },
-  {
-    id: '2',
-    name: 'Telemedicine Expansion',
-    financialImpact: 3.8,
-    operationalComplexity: 2.1,
-    competitiveDisruption: 'medium',
-    timeUrgency: 4.2,
-    description: 'Expand telemedicine capabilities to rural markets',
-    estimatedCost: '$800K',
-    timeline: '12 months'
-  },
-  {
-    id: '3',
-    name: 'EHR Integration',
-    financialImpact: 3.2,
-    operationalComplexity: 4.8,
-    competitiveDisruption: 'low',
-    timeUrgency: 3.1,
-    description: 'Complete integration of electronic health records system',
-    estimatedCost: '$1.2M',
-    timeline: '24 months'
-  },
-  {
-    id: '4',
-    name: 'Outpatient Surgery Center',
-    financialImpact: 4.1,
-    operationalComplexity: 3.5,
-    competitiveDisruption: 'medium',
-    timeUrgency: 2.8,
-    description: 'New ambulatory surgery center in growing suburban market',
-    estimatedCost: '$5.2M',
-    timeline: '30 months'
-  },
-  {
-    id: '5',
-    name: 'Patient Portal Enhancement',
-    financialImpact: 2.3,
-    operationalComplexity: 1.8,
-    competitiveDisruption: 'low',
-    timeUrgency: 2.1,
-    description: 'Upgrade patient portal with mobile app and enhanced features',
-    estimatedCost: '$400K',
-    timeline: '8 months'
-  },
-  {
-    id: '6',
-    name: 'Robotic Surgery Program',
-    financialImpact: 4.7,
-    operationalComplexity: 3.9,
-    competitiveDisruption: 'high',
-    timeUrgency: 3.6,
-    description: 'Launch comprehensive robotic surgery program',
-    estimatedCost: '$3.8M',
-    timeline: '15 months'
-  }
-];
-
-const getDisruptionColor = (disruption: string) => {
-  switch (disruption) {
-    case 'low': return '#22c55e'; // green
-    case 'medium': return '#eab308'; // yellow
-    case 'high': return '#ef4444'; // red
-    default: return '#6b7280'; // gray
-  }
+const getDisruptionLevel = (disruption: number) => {
+  if (disruption <= 2) return 'low';
+  if (disruption <= 3) return 'medium';
+  return 'high';
 };
 
 const CustomTooltip = ({ active, payload }: any) => {
@@ -101,32 +23,24 @@ const CustomTooltip = ({ active, payload }: any) => {
     const data = payload[0].payload;
     return (
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-lg min-w-64">
-        <h3 className="font-semibold text-gray-900 mb-2">{data.name}</h3>
+        <h3 className="font-semibold text-gray-900 mb-2">{data.initiative_name}</h3>
         <p className="text-sm text-gray-600 mb-3">{data.description}</p>
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
             <span className="font-medium">Financial Impact:</span>
-            <span className="ml-1">{data.financialImpact}/5</span>
+            <span className="ml-1">{data.financial_impact}/5</span>
           </div>
           <div>
             <span className="font-medium">Complexity:</span>
-            <span className="ml-1">{data.operationalComplexity}/5</span>
+            <span className="ml-1">{data.operational_complexity}/5</span>
           </div>
           <div>
             <span className="font-medium">Urgency:</span>
-            <span className="ml-1">{data.timeUrgency}/5</span>
+            <span className="ml-1">{data.time_urgency}/5</span>
           </div>
           <div>
             <span className="font-medium">Disruption:</span>
-            <span className="ml-1 capitalize">{data.competitiveDisruption}</span>
-          </div>
-          <div>
-            <span className="font-medium">Cost:</span>
-            <span className="ml-1">{data.estimatedCost}</span>
-          </div>
-          <div>
-            <span className="font-medium">Timeline:</span>
-            <span className="ml-1">{data.timeline}</span>
+            <span className="ml-1 capitalize">{getDisruptionLevel(data.competitive_disruption)}</span>
           </div>
         </div>
       </div>
@@ -136,6 +50,54 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 export const StrategicImpactMatrix = () => {
+  const { data: initiatives, isLoading, error } = useStrategicInitiatives();
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-900">
+            Strategic Impact Matrix (SIM)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-64">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span className="ml-2">Loading strategic initiatives...</span>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-900">
+            Strategic Impact Matrix (SIM)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-64">
+          <div className="text-red-600">Error loading initiatives: {error.message}</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!initiatives || initiatives.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-900">
+            Strategic Impact Matrix (SIM)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-64">
+          <div className="text-gray-600">No strategic initiatives found</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <TooltipProvider>
       <Card>
@@ -158,7 +120,7 @@ export const StrategicImpactMatrix = () => {
             </UITooltip>
           </div>
           <p className="text-sm text-gray-600">
-            Evaluate strategic initiatives across key dimensions to prioritize investments
+            Evaluate strategic initiatives across key dimensions to prioritize investments ({initiatives.length} initiatives)
           </p>
         </CardHeader>
         <CardContent>
@@ -168,7 +130,7 @@ export const StrategicImpactMatrix = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis 
                   type="number" 
-                  dataKey="financialImpact" 
+                  dataKey="financial_impact" 
                   domain={[0.5, 5.5]}
                   tick={{ fontSize: 12 }}
                   tickCount={6}
@@ -181,7 +143,7 @@ export const StrategicImpactMatrix = () => {
                 />
                 <YAxis 
                   type="number" 
-                  dataKey="operationalComplexity" 
+                  dataKey="operational_complexity" 
                   domain={[0.5, 5.5]}
                   tick={{ fontSize: 12 }}
                   tickCount={6}
@@ -193,12 +155,12 @@ export const StrategicImpactMatrix = () => {
                   }}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Scatter data={sampleInitiatives}>
-                  {sampleInitiatives.map((entry, index) => (
+                <Scatter data={initiatives}>
+                  {initiatives.map((entry, index) => (
                     <Cell 
                       key={`cell-${index}`} 
-                      fill={getDisruptionColor(entry.competitiveDisruption)}
-                      r={4 + (entry.timeUrgency * 3)} // Size based on urgency (4-19px radius)
+                      fill={getDisruptionColor(entry.competitive_disruption)}
+                      r={4 + (entry.time_urgency * 3)} // Size based on urgency (4-19px radius)
                     />
                   ))}
                 </Scatter>
@@ -217,15 +179,15 @@ export const StrategicImpactMatrix = () => {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span className="text-sm">Low</span>
+                    <span className="text-sm">Low (1-2)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                    <span className="text-sm">Medium</span>
+                    <span className="text-sm">Medium (3)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                    <span className="text-sm">High</span>
+                    <span className="text-sm">High (4-5)</span>
                   </div>
                 </div>
               </div>

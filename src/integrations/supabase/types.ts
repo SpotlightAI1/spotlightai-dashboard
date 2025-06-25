@@ -669,6 +669,50 @@ export type Database = {
         }
         Relationships: []
       }
+      strategic_initiatives: {
+        Row: {
+          competitive_disruption: number
+          created_at: string
+          description: string | null
+          financial_impact: number
+          id: string
+          initiative_name: string
+          operational_complexity: number
+          organization_id: string | null
+          time_urgency: number
+        }
+        Insert: {
+          competitive_disruption: number
+          created_at?: string
+          description?: string | null
+          financial_impact: number
+          id?: string
+          initiative_name: string
+          operational_complexity: number
+          organization_id?: string | null
+          time_urgency: number
+        }
+        Update: {
+          competitive_disruption?: number
+          created_at?: string
+          description?: string | null
+          financial_impact?: number
+          id?: string
+          initiative_name?: string
+          operational_complexity?: number
+          organization_id?: string | null
+          time_urgency?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategic_initiatives_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "healthcare_organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       strategic_insights: {
         Row: {
           confidence_score: number | null
