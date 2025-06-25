@@ -17,7 +17,7 @@ export const useWizardSubmission = (
     
     const organizationData = {
       name: wizardData.name,
-      type: wizardData.type as any,
+      type: wizardData.type,
       annual_revenue_range: wizardData.annual_revenue_range,
       market: wizardData.market,
       beds: wizardData.beds,
@@ -35,13 +35,18 @@ export const useWizardSubmission = (
       ...(includeCompletionTimestamp && { onboarding_completed_at: new Date().toISOString() })
     };
 
+    console.log('Submitting organization data:', organizationData);
+
     const { data: organization, error } = await supabase
       .from('healthcare_organizations')
-      .insert(organizationData as any)
+      .insert(organizationData)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Database error:', error);
+      throw error;
+    }
 
     // Save stakeholders
     if (wizardData.stakeholders.length > 0) {
@@ -55,7 +60,14 @@ export const useWizardSubmission = (
         organization_id: organization.id
       }));
 
-      await supabase.from('stakeholders').insert(stakeholdersData);
+      const { error: stakeholdersError } = await supabase
+        .from('stakeholders')
+        .insert(stakeholdersData);
+
+      if (stakeholdersError) {
+        console.error('Stakeholders error:', stakeholdersError);
+        throw stakeholdersError;
+      }
     }
 
     // Save priorities
@@ -66,7 +78,14 @@ export const useWizardSubmission = (
         priority_rank: index + 1
       }));
 
-      await supabase.from('organization_priorities').insert(prioritiesData);
+      const { error: prioritiesError } = await supabase
+        .from('organization_priorities')
+        .insert(prioritiesData);
+
+      if (prioritiesError) {
+        console.error('Priorities error:', prioritiesError);
+        throw prioritiesError;
+      }
     }
 
     // Save challenges
@@ -77,7 +96,14 @@ export const useWizardSubmission = (
         severity_level: 3
       }));
 
-      await supabase.from('organization_challenges').insert(challengesData);
+      const { error: challengesError } = await supabase
+        .from('organization_challenges')
+        .insert(challengesData);
+
+      if (challengesError) {
+        console.error('Challenges error:', challengesError);
+        throw challengesError;
+      }
     }
 
     return organization;

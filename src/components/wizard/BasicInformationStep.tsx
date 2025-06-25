@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -58,11 +59,11 @@ export const BasicInformationStep: React.FC<BasicInformationStepProps> = ({ data
               <SelectValue placeholder="Select organization type" />
             </SelectTrigger>
             <SelectContent>
-              {ORGANIZATION_TYPES.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
+              <SelectItem value="independent_health_system">Independent Health System</SelectItem>
+              <SelectItem value="regional_network">Regional Network</SelectItem>
+              <SelectItem value="specialty_provider">Specialty Provider</SelectItem>
+              <SelectItem value="critical_access_hospital">Critical Access Hospital</SelectItem>
+              <SelectItem value="academic_medical_center">Academic Medical Center</SelectItem>
             </SelectContent>
           </Select>
         </div>
