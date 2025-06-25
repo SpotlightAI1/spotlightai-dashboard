@@ -161,7 +161,12 @@ When providing strategic recommendations, consider their specific constraints an
       // Save stakeholders
       if (wizardData.stakeholders.length > 0) {
         const stakeholdersData = wizardData.stakeholders.map(stakeholder => ({
-          ...stakeholder,
+          name: stakeholder.name,
+          title: stakeholder.title,
+          email: stakeholder.email,
+          phone: stakeholder.phone,
+          role_type: stakeholder.role_type,
+          primary_contact: Boolean(stakeholder.primary_contact), // Ensure boolean type
           organization_id: organization.id
         }));
 
@@ -247,7 +252,12 @@ When providing strategic recommendations, consider their specific constraints an
       // Save stakeholders
       if (wizardData.stakeholders.length > 0) {
         const stakeholdersData = wizardData.stakeholders.map(stakeholder => ({
-          ...stakeholder,
+          name: stakeholder.name,
+          title: stakeholder.title,
+          email: stakeholder.email,
+          phone: stakeholder.phone,
+          role_type: stakeholder.role_type,
+          primary_contact: Boolean(stakeholder.primary_contact), // Ensure boolean type
           organization_id: organization.id
         }));
 
