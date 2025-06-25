@@ -165,7 +165,7 @@ When providing strategic recommendations, consider their specific constraints an
           email: stakeholder.email,
           phone: stakeholder.phone,
           role_type: stakeholder.role_type,
-          primary_contact: stakeholder.primary_contact === true || stakeholder.primary_contact === 'true',
+          primary_contact: Boolean(stakeholder.primary_contact),
           organization_id: organization.id
         }));
 
@@ -256,7 +256,7 @@ When providing strategic recommendations, consider their specific constraints an
           email: stakeholder.email,
           phone: stakeholder.phone,
           role_type: stakeholder.role_type,
-          primary_contact: stakeholder.primary_contact === true || stakeholder.primary_contact === 'true',
+          primary_contact: Boolean(stakeholder.primary_contact),
           organization_id: organization.id
         }));
 
