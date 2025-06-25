@@ -13,6 +13,8 @@ export const useWizardSubmission = (
   const { toast } = useToast();
 
   const saveOrganizationData = async (includeCompletionTimestamp = false) => {
+    console.log('Starting saveOrganizationData with wizardData:', wizardData);
+    
     const masterPrompt = generateMasterPrompt(wizardData);
     
     const organizationData = {
@@ -44,12 +46,21 @@ export const useWizardSubmission = (
       .single();
 
     if (error) {
-      console.error('Database error:', error);
+      console.error('Database error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        organizationData: organizationData
+      });
       throw error;
     }
 
+    console.log('Organization created successfully:', organization);
+
     // Save stakeholders
     if (wizardData.stakeholders.length > 0) {
+      console.log('Saving stakeholders:', wizardData.stakeholders);
       const stakeholdersData = wizardData.stakeholders.map(stakeholder => ({
         name: stakeholder.name,
         title: stakeholder.title,
@@ -68,10 +79,12 @@ export const useWizardSubmission = (
         console.error('Stakeholders error:', stakeholdersError);
         throw stakeholdersError;
       }
+      console.log('Stakeholders saved successfully');
     }
 
     // Save priorities
     if (wizardData.strategic_priorities.length > 0) {
+      console.log('Saving priorities:', wizardData.strategic_priorities);
       const prioritiesData = wizardData.strategic_priorities.map((priority, index) => ({
         organization_id: organization.id,
         priority_name: priority,
@@ -86,10 +99,12 @@ export const useWizardSubmission = (
         console.error('Priorities error:', prioritiesError);
         throw prioritiesError;
       }
+      console.log('Priorities saved successfully');
     }
 
     // Save challenges
     if (wizardData.current_challenges.length > 0) {
+      console.log('Saving challenges:', wizardData.current_challenges);
       const challengesData = wizardData.current_challenges.map(challenge => ({
         organization_id: organization.id,
         challenge_name: challenge,
@@ -104,12 +119,14 @@ export const useWizardSubmission = (
         console.error('Challenges error:', challengesError);
         throw challengesError;
       }
+      console.log('Challenges saved successfully');
     }
 
     return organization;
   };
 
   const handleSaveDraft = async () => {
+    console.log('Saving draft...');
     try {
       await saveOrganizationData(false);
       toast({
@@ -120,13 +137,14 @@ export const useWizardSubmission = (
       console.error('Error saving draft:', error);
       toast({
         title: "Error",
-        description: "Failed to save draft. Please try again.",
+        description: `Failed to save draft: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     }
   };
 
   const handleComplete = async () => {
+    console.log('Completing onboarding...');
     setIsSubmitting(true);
     try {
       const organization = await saveOrganizationData(true);
@@ -139,7 +157,7 @@ export const useWizardSubmission = (
       console.error('Error completing onboarding:', error);
       toast({
         title: "Error",
-        description: "Failed to complete onboarding. Please try again.",
+        description: `Failed to complete onboarding: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
