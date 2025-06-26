@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, memo, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,7 +94,7 @@ const progressStages = [
   { stage: 'Complete', message: 'Report generated successfully!' }
 ];
 
-export const StrategicReportGenerator: React.FC<StrategicReportGeneratorProps> = ({
+const StrategicReportGeneratorComponent: React.FC<StrategicReportGeneratorProps> = ({
   organizationName,
   organizationId,
   lastReportDate
@@ -107,9 +107,12 @@ export const StrategicReportGenerator: React.FC<StrategicReportGeneratorProps> =
   const [currentStage, setCurrentStage] = useState(0);
   const { toast } = useToast();
 
-  const selectedReport = reportTypes.find(rt => rt.id === selectedReportType);
+  const selectedReport = useMemo(() => 
+    reportTypes.find(rt => rt.id === selectedReportType), 
+    [selectedReportType]
+  );
 
-  const handleGenerateReport = async () => {
+  const handleGenerateReport = useCallback(async () => {
     if (!selectedReportType) {
       toast({
         title: "Report Type Required",
@@ -147,9 +150,9 @@ export const StrategicReportGenerator: React.FC<StrategicReportGeneratorProps> =
       title: "Report Generated Successfully",
       description: `${selectedReport?.name} has been generated and sent to ${recipientEmail}`,
     });
-  };
+  }, [selectedReportType, recipientEmail, selectedReport, toast]);
 
-  const handlePreviewToggle = () => {
+  const handlePreviewToggle = useCallback(() => {
     if (!selectedReportType) {
       toast({
         title: "Select Report Type",
@@ -159,7 +162,7 @@ export const StrategicReportGenerator: React.FC<StrategicReportGeneratorProps> =
       return;
     }
     setShowPreview(!showPreview);
-  };
+  }, [selectedReportType, showPreview, toast]);
 
   return (
     <Card className="w-full">
@@ -312,3 +315,5 @@ export const StrategicReportGenerator: React.FC<StrategicReportGeneratorProps> =
     </Card>
   );
 };
+
+export const StrategicReportGenerator = memo(StrategicReportGeneratorComponent);
