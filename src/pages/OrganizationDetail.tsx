@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Building2, DollarSign, Bed, MapPin, Target } from 'lucide-react';
 import { EnhancedStrategicImpactMatrix } from '@/components/EnhancedStrategicImpactMatrix';
+import { StrategicReportGenerator } from '@/components/StrategicReportGenerator';
 
 // Mock organization data - in a real app, this would come from an API
 const mockOrganizations = {
@@ -48,6 +48,9 @@ export const OrganizationDetail = () => {
       </div>
     );
   }
+
+  // Mock last report date for demonstration
+  const lastReportDate = "December 15, 2024";
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -130,6 +133,13 @@ export const OrganizationDetail = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Strategic Report Generator - Prominent placement */}
+      <StrategicReportGenerator 
+        organizationName={organization.name}
+        organizationId={organization.id}
+        lastReportDate={lastReportDate}
+      />
 
       {/* Strategic Impact Matrix */}
       <EnhancedStrategicImpactMatrix 
